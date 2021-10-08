@@ -29,11 +29,11 @@ namespace AliChoixServer.Controllers
         /// <response code="200">Product found</response>
         /// <response code="404">Product not found</response>
         [HttpGet]
-        async public Task<ActionResult<AliChoixProduct>> Get(String universalProductCode)
+        async public Task<ActionResult<OffMongoDbProduct>> Get(String universalProductCode)
         {
             OffMongoDbProduct product = m_mongoCrud.LoadDocumentById<OffMongoDbProduct>(universalProductCode);
 
-            if (product != null && product.ImageUrl != null) return new AliChoixProduct(product);
+            if (product != null && product.ImageUrl != null) return product;
 
             product = await FetchProductFromOffApi(universalProductCode);
 
@@ -41,7 +41,7 @@ namespace AliChoixServer.Controllers
 
             //todo save product in db
 
-            return new AliChoixProduct(product);
+            return product;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace AliChoixServer.Controllers
         /// <response code="200">Product correctly analysed</response>
         /// <response code="400">Bad request</response>
         [HttpPost]
-        public ActionResult<AliChoixProduct> Post(String universalProductCode, IFormFile image)
+        public ActionResult<OffMongoDbProduct> Post(String universalProductCode, IFormFile image)
         {
             var httpRequest = ControllerContext.HttpContext.Request;
 
@@ -61,7 +61,7 @@ namespace AliChoixServer.Controllers
             //todo add the product to the db
             //todo return the product created
 
-            return new AliChoixProduct(new OffMongoDbProduct());
+            return new OffMongoDbProduct();
         }
 
         private async Task<OffMongoDbProduct> FetchProductFromOffApi(string universalProductCode)
