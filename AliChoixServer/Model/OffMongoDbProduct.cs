@@ -18,6 +18,7 @@ namespace AliChoixServer.Model
         public string Name { get; set; }
 
         [JsonProperty("image_url")]
+        [BsonElement("image_url")]
         public Uri ImageUrl { get; set; }
 
         [BsonElement("serving_quantity")][JsonProperty("serving_quantity")]

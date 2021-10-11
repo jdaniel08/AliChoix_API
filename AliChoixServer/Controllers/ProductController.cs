@@ -2,6 +2,8 @@
 using AliChoixServer.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -35,11 +37,15 @@ namespace AliChoixServer.Controllers
 
             if (product != null && product.ImageUrl != null) return product;
 
-            product = await FetchProductFromOffApi(universalProductCode);
+            String serializedProduct = await FetchProductFromOffApi(universalProductCode);
 
-            if (product == null) return NotFound();
+            if (serializedProduct == null) return NotFound();
 
-            //todo save product in db
+            OffApiProduct apiProduct = JsonConvert.DeserializeObject<OffApiProduct>(serializedProduct);
+            BsonDocument bsonProduct = BsonSerializer.Deserialize<BsonDocument>(apiProduct.Product.ToString());
+            m_mongoCrud.ReplaceDocument<BsonDocument>(universalProductCode, bsonProduct, true);
+
+            product = BsonSerializer.Deserialize<OffMongoDbProduct>(bsonProduct);
 
             return product;
         }
@@ -50,11 +56,11 @@ namespace AliChoixServer.Controllers
         /// <response code="200">Product correctly analysed</response>
         /// <response code="400">Bad request</response>
         [HttpPost]
-        public ActionResult<OffMongoDbProduct> Post(String universalProductCode, IFormFile image)
+        public ActionResult<OffMongoDbProduct> Post(String universalProductCode)
         {
             var httpRequest = ControllerContext.HttpContext.Request;
 
-            if (universalProductCode == null || image == null) return BadRequest();
+            if (universalProductCode == null || httpRequest.Form.Files.Count == 0) return BadRequest();
 
             //todo request the vision service to analyse the image
             //todo create a product from response
@@ -64,16 +70,15 @@ namespace AliChoixServer.Controllers
             return new OffMongoDbProduct();
         }
 
-        private async Task<OffMongoDbProduct> FetchProductFromOffApi(string universalProductCode)
+        private async Task<String> FetchProductFromOffApi(string universalProductCode)
         {
             HttpResponseMessage response = await m_client.GetAsync(universalProductCode + ".json");
 
-            if (!response.IsSuccessStatusCode) return null;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK) return null;
 
-            string productAsJson = await response.Content.ReadAsStringAsync();
-            OffApiProduct apiProduct = JsonConvert.DeserializeObject<OffApiProduct>(productAsJson);
+            string productAsJson = await response.Content.ReadAsStringAsync();      
 
-            return apiProduct.Product;
+            return productAsJson;
         }
     }
 }

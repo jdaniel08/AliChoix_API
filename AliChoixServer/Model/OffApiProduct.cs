@@ -14,7 +14,7 @@ namespace AliChoixServer.Model
         public string Code { get; set; }
 
         [JsonProperty("product")]
-        public OffMongoDbProduct Product { get; set; }
+        public object Product { get; set; }
 
         [JsonProperty("status")]
         public long Status { get; set; }
