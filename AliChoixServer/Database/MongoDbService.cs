@@ -20,6 +20,21 @@ namespace AliChoixServer.Database
             db = client.GetDatabase(DATABASE_NAME);
         }
 
+        public void ReplaceDocument<T>(string id, T document, bool createIfNonExisting)
+        {
+            IMongoCollection<T> collection = db.GetCollection<T>(TABLE);
+            FilterDefinition<T> filter = Builders<T>.Filter.Eq("_id", id);
+            collection.ReplaceOne(filter, document, new ReplaceOptions { IsUpsert = createIfNonExisting });
+        }
+
+        public void UpdateDocument<T>(string id, String propertyName, T value)
+        {
+            IMongoCollection<T> collection = db.GetCollection<T>(TABLE);
+            FilterDefinition<T> filter = Builders<T>.Filter.Eq("_id", id);
+            var update = Builders<T>.Update.Set(propertyName, value);
+            collection.UpdateOne(filter, update);
+        }
+
         public void InsertDocument<T>(T document)
         {
             IMongoCollection<T> collection = db.GetCollection<T>(TABLE);
@@ -37,7 +52,7 @@ namespace AliChoixServer.Database
         public async Task<T> LoadDocumentByIdAsync<T>(string id)
         {
             IMongoCollection<T> collection = db.GetCollection<T>(TABLE);
-            FilterDefinition<T> filter = Builders<T>.Filter.Eq("Id", id);
+            FilterDefinition<T> filter = Builders<T>.Filter.Eq("_id", id);
             IAsyncCursor<T> cursor = await collection.FindAsync(filter);
 
             return cursor.First();
