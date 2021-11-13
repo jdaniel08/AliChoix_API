@@ -7,8 +7,10 @@ using MongoDB.Bson.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace AliChoixServer.Controllers
@@ -18,12 +20,16 @@ namespace AliChoixServer.Controllers
     public class ProductController : ControllerBase
     {
         private readonly MongoDbService m_mongoCrud;
-        private readonly HttpClient m_client;
+        private readonly HttpClient m_OffClient;
+        private readonly HttpClient m_VisionClient;
+
         public ProductController()
         {
             m_mongoCrud = new MongoDbService();
-            m_client = new HttpClient();
-            m_client.BaseAddress = new Uri("https://world.openfoodfacts.org/api/v0/product/");
+            m_OffClient = new HttpClient();
+            m_VisionClient = new HttpClient();
+            m_OffClient.BaseAddress = new Uri("https://world.openfoodfacts.org/api/v0/product/");
+            m_VisionClient.BaseAddress = new Uri("http://localhost:1222/");
         }
         /// <summary>
         /// Informations on a product
@@ -33,6 +39,8 @@ namespace AliChoixServer.Controllers
         [HttpGet]
         async public Task<ActionResult<OffMongoDbProduct>> Get(String universalProductCode)
         {
+            try
+            {
             OffMongoDbProduct product = m_mongoCrud.LoadDocumentById<OffMongoDbProduct>(universalProductCode);
 
             if (product != null && product.ImageUrl != null) return product;
@@ -40,14 +48,22 @@ namespace AliChoixServer.Controllers
             String serializedProduct = await FetchProductFromOffApi(universalProductCode);
 
             if (serializedProduct == null) return NotFound();
+                
+                OffApiProduct apiProduct = JsonConvert.DeserializeObject<OffApiProduct>(serializedProduct);
 
-            OffApiProduct apiProduct = JsonConvert.DeserializeObject<OffApiProduct>(serializedProduct);
-            BsonDocument bsonProduct = BsonSerializer.Deserialize<BsonDocument>(apiProduct.Product.ToString());
-            m_mongoCrud.ReplaceDocument<BsonDocument>(universalProductCode, bsonProduct, true);
+                if(apiProduct.Product == null) return NotFound();
 
-            product = BsonSerializer.Deserialize<OffMongoDbProduct>(bsonProduct);
+                BsonDocument bsonProduct = BsonSerializer.Deserialize<BsonDocument>(apiProduct.Product.ToString());
+                m_mongoCrud.ReplaceDocument<BsonDocument>(universalProductCode, bsonProduct, true);
 
-            return product;
+                product = BsonSerializer.Deserialize<OffMongoDbProduct>(bsonProduct);
+
+                return product;
+            }
+            catch(Exception error)
+            {
+                return BadRequest(error.Message);
+            }
         }
 
         /// <summary>
@@ -56,23 +72,42 @@ namespace AliChoixServer.Controllers
         /// <response code="200">Product correctly analysed</response>
         /// <response code="400">Bad request</response>
         [HttpPost]
-        public ActionResult<OffMongoDbProduct> Post(String universalProductCode)
+        async public Task<ActionResult<OffMongoDbProduct>> Post(String universalProductCode, IFormFile file)
         {
             var httpRequest = ControllerContext.HttpContext.Request;
 
-            if (universalProductCode == null || httpRequest.Form.Files.Count == 0) return BadRequest();
+            if (universalProductCode == null || file == null) return BadRequest();
 
-            //todo request the vision service to analyse the image
-            //todo create a product from response
-            //todo add the product to the db
-            //todo return the product created
 
-            return new OffMongoDbProduct();
+            using (var memoryStream = new MemoryStream())
+            {
+                //Get the file steam from the multiform data uploaded from the browser
+                await file.CopyToAsync(memoryStream);
+
+                //Build an multipart/form-data request to upload the file to Web API
+                using var form = new MultipartFormDataContent();
+                using var fileContent = new ByteArrayContent(memoryStream.ToArray());
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(fileContent, "image", file.FileName);
+
+                try
+                {
+                    var response = await m_VisionClient.PostAsync($"analyse", form);
+                    response.EnsureSuccessStatusCode();
+                    
+                    return new OffMongoDbProduct();
+                }
+                catch(Exception)
+                {
+                    //TODO send an error
+                    return new OffMongoDbProduct();
+                }
+            }
         }
 
         private async Task<String> FetchProductFromOffApi(string universalProductCode)
         {
-            HttpResponseMessage response = await m_client.GetAsync(universalProductCode + ".json");
+            HttpResponseMessage response = await m_OffClient.GetAsync(universalProductCode + ".json");
 
             if (response.StatusCode != System.Net.HttpStatusCode.OK) return null;
 
