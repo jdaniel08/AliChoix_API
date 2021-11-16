@@ -93,11 +93,13 @@ namespace AliChoixServer.Controllers
                 try
                 {
                     var response = await m_VisionClient.PostAsync($"analyse", form);
+                    string returnResult = await response.Content.ReadAsStringAsync();
+                    Dictionary<string, List<string>> result = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(returnResult);
                     response.EnsureSuccessStatusCode();
                     
                     return new OffMongoDbProduct();
                 }
-                catch(Exception)
+                catch(Exception e)
                 {
                     //TODO send an error
                     return new OffMongoDbProduct();
