@@ -11,6 +11,187 @@ namespace AliChoixServer.Model
     [BsonIgnoreExtraElements]
     public class OffMongoDbProduct
     {
+        public OffMongoDbProduct(){ }
+
+        /*
+        Exemple de sortie attendue:
+        {'Per': ['150', 'mL', ''], ...}
+        [quantite, unite, pourcentage]
+        */
+        public OffMongoDbProduct(Dictionary<string, List<string>> visionOutput)
+        {
+            Nutriments = new OffNutriments();
+
+            foreach(KeyValuePair<string, List<string>> kvp in visionOutput)
+            {
+                if (kvp.Value.Count != 3) continue;
+
+                try
+                {
+                    switch (kvp.Key)
+                    {
+                        case "Per": SetPer(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "Calories": SetCalories(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "lipides": SetLipides(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "satures": SetSatures(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "trans": SetTrans(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "cholesterol": SetCholesterol(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "sodium": SetSodium(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "glucides": SetGlucides(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "fibres": SetFibres(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "sucres": SetSucres(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "proteines": SetProteines(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "potassium": SetPotassium(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "calcium": SetCalcium(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "vitamine a": SetVitamineA(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "vitamine c": SetVitamineC(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "fer": SetFer(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                    }
+                }
+                catch(Exception)
+                {
+                    continue;
+                }
+            }
+        }
+
+        private void SetPer(string quantity, string unit, string percent)
+        {
+            try
+            {
+                ServingQuantity = Double.Parse(quantity);
+
+                if
+                (
+                    string.Equals(unit, "kg", StringComparison.CurrentCultureIgnoreCase)
+                    || string.Equals(unit, "L", StringComparison.CurrentCultureIgnoreCase)                    
+                )
+                {
+                    ServingQuantity *= 1000;
+                }
+            }
+            catch (Exception)
+            {
+                return;
+            }
+        }
+
+        private void SetCalories(string quantity, string unit, string percent)
+        {
+            Nutriments.Energy = Double.Parse(quantity);
+            Nutriments.EnergyServing = Double.Parse(quantity);
+            Nutriments.EnergyUnit = unit;
+            Nutriments.EnergyValue = Double.Parse(quantity);
+        }
+        private void SetLipides(string quantity, string unit, string percent)
+        {
+            Nutriments.Fat = Double.Parse(quantity);
+            //Nutriments.Fat100G;
+            Nutriments.FatServing = Double.Parse(quantity);
+            Nutriments.FatUnit = unit;
+            Nutriments.FatValue = Double.Parse(quantity); 
+        }
+        private void SetSatures(string quantity, string unit, string percent)
+        {
+            Nutriments.SaturatedFat = Double.Parse(quantity);
+            //Nutriments.SaturatedFat100G;
+            Nutriments.SaturatedFatServing = Double.Parse(quantity);
+            Nutriments.SaturatedFatUnit = unit;
+            Nutriments.SaturatedFatValue = Double.Parse(quantity);
+        }
+        private void SetTrans(string quantity, string unit, string percent)
+        {
+            Nutriments.TransFat = Double.Parse(quantity);
+            //Nutriments.TransFat100G;
+            Nutriments.TransFatServing = Double.Parse(quantity);
+            Nutriments.TransFatUnit = unit;
+            Nutriments.TransFatValue = Double.Parse(quantity);
+        }
+        private void SetCholesterol(string quantity, string unit, string percent)
+        {
+            Nutriments.Cholesterol = Double.Parse(quantity);
+            //Nutriments.Cholesterol100G;
+            Nutriments.CholesterolServing = Double.Parse(quantity);
+            Nutriments.CholesterolUnit = unit;
+            Nutriments.CholesterolValue = Double.Parse(quantity);
+        }
+        private void SetSodium(string quantity, string unit, string percent)
+        {
+            Nutriments.Sodium = Double.Parse(quantity);
+            //Nutriments.Sodium100G;
+            Nutriments.SodiumServing = Double.Parse(quantity);
+            Nutriments.SodiumUnit = unit;
+            Nutriments.SodiumValue = Double.Parse(quantity);
+        }
+        private void SetGlucides(string quantity, string unit, string percent)
+        {
+            Nutriments.Carbohydrates = Double.Parse(quantity);
+            //Nutriments.Carbohydrates100G;
+            Nutriments.CarbohydratesServing = Double.Parse(quantity);
+            Nutriments.CarbohydratesUnit = unit;
+            Nutriments.CarbohydratesValue = Double.Parse(quantity);
+        }
+        private void SetFibres(string quantity, string unit, string percent)
+        {
+            Nutriments.Fiber = Double.Parse(quantity);
+            //Nutriments.Fiber100G;
+            Nutriments.FiberServing = Double.Parse(quantity);
+            Nutriments.FiberUnit = unit;
+            Nutriments.FiberValue = Double.Parse(quantity);
+        }
+        private void SetSucres(string quantity, string unit, string percent)
+        {
+            Nutriments.Sugars = Double.Parse(quantity);
+            //Nutriments.Sugars100G;
+            Nutriments.SugarsServing = Double.Parse(quantity);
+            Nutriments.SugarsUnit = unit;
+            Nutriments.SugarsValue = Double.Parse(quantity);
+        }
+        private void SetProteines(string quantity, string unit, string percent)
+        {
+            Nutriments.Proteins = Double.Parse(quantity);
+            //Nutriments.Proteins100G;
+            Nutriments.ProteinsServing = Double.Parse(quantity);
+            Nutriments.ProteinsUnit = unit;
+            Nutriments.ProteinsValue = Double.Parse(quantity);
+        }
+        private void SetPotassium(string quantity, string unit, string percent)
+        {
+
+        }
+        private void SetCalcium(string quantity, string unit, string percent)
+        {
+            Nutriments.Calcium = Double.Parse(quantity);
+            //Nutriments.Calcium100G;
+            Nutriments.CalciumServing = Double.Parse(quantity);
+            Nutriments.CalciumUnit = unit;
+            Nutriments.CalciumValue = Double.Parse(quantity);
+        }
+        private void SetVitamineA(string quantity, string unit, string percent)
+        {
+            Nutriments.VitaminA = Double.Parse(quantity);
+            //Nutriments.VitaminA100G;
+            Nutriments.VitaminAServing = Double.Parse(quantity);
+            Nutriments.VitaminAUnit = unit;
+            Nutriments.VitaminAValue = Double.Parse(quantity);
+        }
+        private void SetVitamineC(string quantity, string unit, string percent)
+        {
+            Nutriments.VitaminC = Double.Parse(quantity);
+            //Nutriments.VitaminC100G;
+            Nutriments.VitaminCServing = Double.Parse(quantity);
+            Nutriments.VitaminCUnit = unit;
+            Nutriments.VitaminCValue = Double.Parse(quantity);
+        }
+        private void SetFer(string quantity, string unit, string percent)
+        {
+            Nutriments.Iron = Double.Parse(quantity);
+            //Nutriments.Iron100G;
+            Nutriments.IronServing = Double.Parse(quantity);
+            Nutriments.IronUnit = unit;
+            Nutriments.IronValue = Double.Parse(quantity);
+        }
+
         [BsonElement("_id")][JsonProperty("_id")]
         public string UniversalProductCode { get; set; }
 
@@ -21,8 +202,9 @@ namespace AliChoixServer.Model
         [BsonElement("image_url")]
         public Uri ImageUrl { get; set; }
 
-        [BsonElement("serving_quantity")][JsonProperty("serving_quantity")]
-        public double ServingQuantity;
+        [BsonElement("serving_quantity")]
+        [JsonProperty("serving_quantity")]
+        public double ServingQuantity { get; set; }
 
         [BsonElement("nutriscore_grade")][JsonProperty("nutriscore_grade")]
         public string NutriScore { get; set; }

@@ -97,7 +97,7 @@ namespace AliChoixServer.Controllers
                     Dictionary<string, List<string>> result = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(returnResult);
                     response.EnsureSuccessStatusCode();
                     
-                    return new OffMongoDbProduct();
+                    return new OffMongoDbProduct(result);
                 }
                 catch(Exception e)
                 {
