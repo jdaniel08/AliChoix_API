@@ -29,7 +29,7 @@ namespace AliChoixServer.Controllers
             m_OffClient = new HttpClient();
             m_VisionClient = new HttpClient();
             m_OffClient.BaseAddress = new Uri("https://world.openfoodfacts.org/api/v0/product/");
-            m_VisionClient.BaseAddress = new Uri("http://localhost:1222/");
+            m_VisionClient.BaseAddress = new Uri("http://127.0.0.1:1222/");
         }
         /// <summary>
         /// Informations on a product
