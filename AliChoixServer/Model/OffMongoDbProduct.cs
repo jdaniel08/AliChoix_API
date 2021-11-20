@@ -45,6 +45,7 @@ namespace AliChoixServer.Model
                         case "calcium": SetCalcium(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
                         case "vitamine a": SetVitamineA(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
                         case "vitamine c": SetVitamineC(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
+                        case "vitamine e": SetVitamineE(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
                         case "fer": SetFer(kvp.Value[0], kvp.Value[1], kvp.Value[2]); break;
                     }
                 }
@@ -161,35 +162,45 @@ namespace AliChoixServer.Model
         }
         private void SetCalcium(string quantity, string unit, string percent)
         {
-            Nutriments.Calcium = Double.Parse(quantity);
+            Nutriments.CalciumUnit = "%";
+            Nutriments.Calcium = Double.Parse(percent);
             //Nutriments.Calcium100G;
-            Nutriments.CalciumServing = Double.Parse(quantity);
-            Nutriments.CalciumUnit = unit;
-            Nutriments.CalciumValue = Double.Parse(quantity);
+            Nutriments.CalciumServing = Double.Parse(percent);            
+            Nutriments.CalciumValue = Double.Parse(percent);
         }
         private void SetVitamineA(string quantity, string unit, string percent)
         {
-            Nutriments.VitaminA = Double.Parse(quantity);
+            Nutriments.VitaminAUnit = "%";
+            Nutriments.VitaminA = Double.Parse(percent);
             //Nutriments.VitaminA100G;
-            Nutriments.VitaminAServing = Double.Parse(quantity);
-            Nutriments.VitaminAUnit = unit;
-            Nutriments.VitaminAValue = Double.Parse(quantity);
+            Nutriments.VitaminAServing = Double.Parse(percent);            
+            Nutriments.VitaminAValue = Double.Parse(percent);
         }
         private void SetVitamineC(string quantity, string unit, string percent)
         {
-            Nutriments.VitaminC = Double.Parse(quantity);
+            Nutriments.VitaminCUnit = "%";
+            Nutriments.VitaminC = Double.Parse(percent);
             //Nutriments.VitaminC100G;
-            Nutriments.VitaminCServing = Double.Parse(quantity);
-            Nutriments.VitaminCUnit = unit;
-            Nutriments.VitaminCValue = Double.Parse(quantity);
+            Nutriments.VitaminCServing = Double.Parse(percent);            
+            Nutriments.VitaminCValue = Double.Parse(percent);
         }
+
+        private void SetVitamineE(string quantity, string unit, string percent)
+        {
+            Nutriments.VitaminEUnit = "%";
+            Nutriments.VitaminE = Double.Parse(percent);
+            //Nutriments.VitaminC100G;
+            Nutriments.VitaminEServing = Double.Parse(percent);
+            Nutriments.VitaminEValue = Double.Parse(percent);
+        }
+
         private void SetFer(string quantity, string unit, string percent)
         {
-            Nutriments.Iron = Double.Parse(quantity);
+            Nutriments.IronUnit = "%";
+            Nutriments.Iron = Double.Parse(percent);
             //Nutriments.Iron100G;
-            Nutriments.IronServing = Double.Parse(quantity);
-            Nutriments.IronUnit = unit;
-            Nutriments.IronValue = Double.Parse(quantity);
+            Nutriments.IronServing = Double.Parse(percent);            
+            Nutriments.IronValue = Double.Parse(percent);
         }
 
         [BsonElement("_id")][JsonProperty("_id")]
