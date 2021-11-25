@@ -58,23 +58,8 @@ namespace AliChoixServer.Model
 
         private void SetPer(double quantity, string unit, double percent)
         {
-            try
-            {
-                ServingQuantity = quantity;
-
-                if
-                (
-                    string.Equals(unit, "kg", StringComparison.CurrentCultureIgnoreCase)
-                    || string.Equals(unit, "l", StringComparison.CurrentCultureIgnoreCase)                    
-                )
-                {
-                    ServingQuantity *= 1000;
-                }
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            ServingQuantity = quantity;
+            ServingUnit = unit;          
         }
 
         private void SetCalories(double quantity, string unit, double percent)
@@ -220,6 +205,9 @@ namespace AliChoixServer.Model
         [BsonElement("serving_quantity")]
         [JsonProperty("serving_quantity")]
         public double ServingQuantity { get; set; }
+
+        [JsonProperty("serving_quantity")]
+        public string ServingUnit { get; set; }
 
         [BsonElement("nutriscore_grade")][JsonProperty("nutriscore_grade")]
         public string NutriScore { get; set; }
