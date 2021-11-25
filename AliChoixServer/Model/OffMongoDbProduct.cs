@@ -80,9 +80,13 @@ namespace AliChoixServer.Model
         private void SetCalories(double quantity, string unit, double percent)
         {
             Nutriments.Energy = quantity;
+            Nutriments.EnergyKcal = quantity;
             Nutriments.EnergyServing = quantity;
+            Nutriments.EnergyKcalServing = quantity;
             Nutriments.EnergyUnit = unit;
+            Nutriments.EnergyKcalUnit = unit;
             Nutriments.EnergyValue = quantity;
+            Nutriments.EnergyKcalValue = quantity;
         }
         private void SetLipides(double quantity, string unit, double percent)
         {
